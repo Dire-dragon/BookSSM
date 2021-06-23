@@ -35,7 +35,7 @@ public class BookTest {
 
     @Test
     public void test1(){
-        System.out.println(bookController.SearchBook(1));
+        System.out.println(bookController.searchBook(1));
         // bookMapper.insert(book);
     }
 

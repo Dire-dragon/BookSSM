@@ -33,4 +33,8 @@ public class BookService {
         Book book = bookMapper.selectByPrimaryKey(id);
         return book;
     }
+
+    public void updateBook(Book book) {
+        bookMapper.updateByPrimaryKeySelective(book);
+    }
 }

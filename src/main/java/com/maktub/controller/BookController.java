@@ -24,9 +24,18 @@ public class BookController {
     @Autowired
     BookService bookService;
 
-    @RequestMapping(value = "/book",method = RequestMethod.GET)
+    @RequestMapping(value = "book",method = RequestMethod.PUT)
     @ResponseBody
-    public Msg SearchBook(@RequestParam(value = "id")Integer id){
+    public Msg updateBook(Book book){
+        System.out.println(book);
+        bookService.updateBook(book);
+        return Msg.success();
+    }
+
+
+    @RequestMapping(value = "book",method = RequestMethod.GET)
+    @ResponseBody
+    public Msg searchBook(@RequestParam(value = "id")Integer id){
         Book book = bookService.SearchBook(id);
 
         return Msg.success().add("book",book);
@@ -37,7 +46,7 @@ public class BookController {
      * @param book
      * @return
      */
-    @RequestMapping(value = "/book",method = RequestMethod.POST)
+    @RequestMapping(value = "book",method = RequestMethod.POST)
     @ResponseBody
     public Msg addBook(Book book){
         bookService.addBook(book);
@@ -49,7 +58,7 @@ public class BookController {
      * @param pn
      * @return
      */
-    @RequestMapping("/books")
+    @RequestMapping("books")
     @ResponseBody//Ajax调用返回Json
     public Msg getWithJson(@RequestParam(value = "pn",defaultValue = "1")Integer pn){
 
