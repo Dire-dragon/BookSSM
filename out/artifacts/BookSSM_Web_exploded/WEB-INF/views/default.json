@@ -1,0 +1,17 @@
+{
+  "code": "0",
+  "msg": "",
+  "data": [{
+    "id": "1",
+    "username": "hello",
+    "sex": "boy"
+  }, {
+    "id": "2",
+    "username": "world",
+    "sex": "boy"
+  }, {
+    "id": "3",
+    "username": "too",
+    "sex": "boy"
+  }]
+}
