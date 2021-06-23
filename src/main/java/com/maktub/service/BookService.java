@@ -37,4 +37,8 @@ public class BookService {
     public void updateBook(Book book) {
         bookMapper.updateByPrimaryKeySelective(book);
     }
+
+    public void deleteBook(Integer id) {
+        bookMapper.deleteByPrimaryKey(id);
+    }
 }

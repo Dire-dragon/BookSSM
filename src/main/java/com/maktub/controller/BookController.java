@@ -24,6 +24,14 @@ public class BookController {
     @Autowired
     BookService bookService;
 
+
+    @RequestMapping(value = "book",method = RequestMethod.DELETE)
+    @ResponseBody
+    public Msg deleteBook(@RequestParam("id") Integer id){
+        bookService.deleteBook(id);
+        return Msg.success();
+    }
+
     @RequestMapping(value = "book",method = RequestMethod.PUT)
     @ResponseBody
     public Msg updateBook(Book book){

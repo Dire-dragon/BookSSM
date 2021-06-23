@@ -296,8 +296,9 @@
                                     yes:function (index) {
                                         $.ajax({
                                             url: "${APP_PATH}/book",
-                                            type: "PUT",
+                                            type: "POST",
                                             data: {
+                                                "_method":"PUT",
                                                 "id": obj.data.id,
                                                 "name": $("#edt_bookName").val(),
                                                 "author": $("#edt_author").val(),
@@ -327,7 +328,30 @@
                         })
                         break;
                     //删除按钮事件
-                    case 'delete':
+                    case 'del':
+                        layer.open({
+                            type: 0,
+                            btn: ["确定","取消"],
+                            title: "删除",
+                            content: "确定删除吗？",
+                            yes:function (index) {
+                                $.ajax({
+                                    url:"${APP_PATH}/book",
+                                    type:"POST",
+                                    data:{
+                                        _method: "DELETE",
+                                        "id":obj.data.id
+                                    },
+                                    success:function () {
+                                        toPage(pn);
+                                        layer.close(index);
+                                    }
+                                })
+                            },
+                            btn2:function (index) {
+                                layer.close(index);
+                            }
+                        })
                         break;
                 }
             })
