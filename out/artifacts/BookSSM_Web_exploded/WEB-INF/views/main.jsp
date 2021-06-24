@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>layout 管理系统大布局 - Layui</title>
+    <title>书图管理系统</title>
     <%
         pageContext.setAttribute("APP_PATH", request.getContextPath());
     %>
@@ -383,29 +383,22 @@
         })
     }
 
-    //添加按钮点击事件
-    $("#addbtn").click(function () {
-
-        //表单验证
-
-        //异步请求添加书图
-
-    })
-
-    //关闭按钮点击事件
-    $("#add_cancel_btn,#edt_cancel_btn").click(function () {
-        layer.closeAll();
-    })
-
-
 </script>
 <script type="text/html" id="barDemo">
-    <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
-    <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+    <div class="layui-btn-group">
+        <a class="layui-btn layui-btn-sm" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del">删除</a>
+    </div>
 </script>
 <script type="text/html" id="toolbarDemo">
-    <div class="layui-btn-container layui-col-md2 layui-col-md-offset11">
-        <button class="layui-btn layui-btn-sm " lay-event="add">添加</button>
+    <div class="layui-col-md8 layui-col-md-offset8 layui-fluid">
+        <div class="layui-row ">
+            <input type="text" class="layui-col-md4 layui-input" style="width: 30%">
+            <div class="layui-btn-group layui-row">
+                <button class="layui-btn layui-btn-normal layui-btn-sm layui-col-md6">查询</button>
+                <button class="layui-btn layui-btn-sm layui-col-md6" lay-event="add">添加</button>
+            </div>
+        </div>
     </div>
 </script>
 </html>
