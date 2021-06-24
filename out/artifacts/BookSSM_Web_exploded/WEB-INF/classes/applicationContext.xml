@@ -10,6 +10,7 @@
     <!-- Spring配置文件，这里主要配置和业务逻辑有关的-->
     <!--==================================数据源，事务控制，xxx=============================-->
     <context:property-placeholder location="classpath:dbconfig.properties"/>
+
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc.driver}"/>
         <property name="url" value="${jdbc.url}"/>
@@ -22,7 +23,6 @@
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!--扫描所有的dao接口实现，加入到IOC容器中-->
         <property name="basePackage" value="com.maktub.dao"/>
-
     </bean>
 
     <!--配置扫描器，将MyBatis接口的实现加入到IOC容器中-->

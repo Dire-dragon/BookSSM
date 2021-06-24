@@ -151,6 +151,7 @@
 <script type="text/javascript">
 
     var size = 0;
+    var defaultURL = '${APP_PATH}/books?pn=';
 
     layui.use(['element', 'layer', 'util'], function () {
         var element = layui.element
@@ -188,13 +189,18 @@
         $("#add_img").val("");
     }
 
-    function toPage(pn) {
+
+    //查询toPage和普通toPage的区别：
+    //#url不同
+    //#
+
+    function toPage(pn,url) {
         layui.use('table', function () {
             var table = layui.table;
 
             table.render({
                 elem: '#demo'                       //id选择数据表格
-                , url: '${APP_PATH}/books?pn=' + pn //数据接口
+                , url: url + pn// + pn //数据接口
                 , response: {                       //配置返回的信息
                     statusCode: 200                 //成功的状态安
                 }
@@ -209,19 +215,19 @@
                     , {field: 'operate', title: '操作', fixed: 'right', align: 'center', toolbar: '#barDemo'}]]
                 , parseData: function (res) {           //处理数据的函数调用
                     if(size == 0){                      //判断size大小是否为初值
-                        size = res.extend.Books.size;   //从服务器的信息中获取分页条数给size赋值
+                        size = res.extend.books.size;   //从服务器的信息中获取分页条数给size赋值
                     }
-
+                    console.log(res.extend.books)
                     return {                            //返回处理后的数据
                         "code": res.code,
                         "msg": res.msg,
-                        "data": res.extend.Books.list,
-                        "count": res.extend.Books.total,
-                        "info": res.extend.Books
+                        "data": res.extend.books.list,
+                        "count": res.extend.books.total,
+                        "info": res.extend.books
                     };
                 }
                 , done: function (res, curr, count) {       //渲染后的回调函数
-                    page(pn, count);                        //分页条的渲染
+                    page(pn, count, url);                        //分页条的渲染
                 }
             })
 
@@ -254,7 +260,7 @@
                                             type:0,
                                             content:"添加成功！"
                                         })
-                                        toPage(2147483);//跳转到最后一页,2147483是2的32次方减1，为Java中整形的最大值
+                                        toPage(2147483,defaultURL);//跳转到最后一页,2147483是2的32次方减1，为Java中整形的最大值
                                     },
                                     error: function () {
                                         layer.msg("添加失败");
@@ -267,6 +273,9 @@
 
                         });
                         break;
+                    case "find":
+                        toPage(1,'${APP_PATH}/book?name='+$("#find_input").val()+"&pn=");
+                        break;
                 }
             });
 
@@ -275,9 +284,8 @@
                 switch (obj.event) {
                     case 'edit':                        //编辑按钮事件
                         $.ajax({
-                            url: "${APP_PATH}/book",
+                            url: "${APP_PATH}/book/" + obj.data.id,//obj.data.id获取该行的id属性
                             type: "GET",
-                            data: {"id": obj.data.id},  //obj.data.id获取该行的id属性
                             success: function (result) {
                                 var info = result.extend.book;
                                 layer.open({
@@ -313,7 +321,7 @@
                                                     type:0,
                                                     content:"修改成功！"
                                                 })
-                                                toPage(pn);
+                                                toPage(pn,url);
                                             },
                                             error:function (result) {
                                                 console.log(result);
@@ -343,7 +351,7 @@
                                         "id":obj.data.id
                                     },
                                     success:function () {
-                                        toPage(pn);
+                                        toPage(pn,url);
                                         layer.close(index);
                                     }
                                 })
@@ -358,10 +366,10 @@
         })
     }
 
-    toPage(1);      //初始化表格
+    toPage(1,defaultURL);      //初始化表格
 
     //分页条生成函数
-    function page(pn, count) {
+    function page(pn, count, url) {
 
         layui.use('laypage', function () {
 
@@ -376,7 +384,7 @@
                 layout: ['prev', 'page', 'next', 'skip', 'count'],//自定义分页样式，prev:上一页，page：连续页码，next：下一页，skip：输入页码跳转，count：显示总页码数
                 jump: function (obj, first) {                     //页码点击事件
                     if(!first){                                   //判断是否是第一次调用，防止重复调用。
-                        toPage(obj.curr);                         //跳转到点击页面
+                        toPage(obj.curr,url);                         //跳转到点击页面
                     }
                 }
             })
@@ -393,9 +401,9 @@
 <script type="text/html" id="toolbarDemo">
     <div class="layui-col-md8 layui-col-md-offset8 layui-fluid">
         <div class="layui-row ">
-            <input type="text" class="layui-col-md4 layui-input" style="width: 30%">
+            <input id="find_input" name="find_value" type="text" class="layui-col-md4 layui-input" style="width: 30%">
             <div class="layui-btn-group layui-row">
-                <button class="layui-btn layui-btn-normal layui-btn-sm layui-col-md6">查询</button>
+                <button class="layui-btn layui-btn-normal layui-btn-sm layui-col-md6" lay-event="find">查询</button>
                 <button class="layui-btn layui-btn-sm layui-col-md6" lay-event="add">添加</button>
             </div>
         </div>

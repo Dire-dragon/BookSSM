@@ -7,10 +7,7 @@ import com.maktub.bean.Msg;
 import com.maktub.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,12 +37,24 @@ public class BookController {
         return Msg.success();
     }
 
-
     @RequestMapping(value = "book",method = RequestMethod.GET)
     @ResponseBody
-    public Msg searchBook(@RequestParam(value = "id")Integer id){
-        Book book = bookService.SearchBook(id);
+    public Msg findBookBySelective(@RequestParam(value = "pn", defaultValue = "1") Integer pn,Book book){
 
+        PageHelper.startPage(pn,5);
+
+        List<Book> books = bookService.findBookBySelective(book);
+
+        PageInfo pageInfo = new PageInfo(books,5);
+
+        return Msg.success().add("books",pageInfo);
+    }
+
+
+    @RequestMapping(value = "book/{id}",method = RequestMethod.GET)
+    @ResponseBody
+    public Msg findBookById(@PathVariable("id")Integer id){
+        Book book = bookService.SearchBook(id);
         return Msg.success().add("book",book);
     }
 
@@ -75,7 +84,7 @@ public class BookController {
         List<Book> books = bookService.getAll();
 
         PageInfo pageInfo = new PageInfo(books, 5);//通过PageInfo获取分页数据
-        return Msg.success().add("Books",pageInfo);
+        return Msg.success().add("books",pageInfo);
     }
 
     /**

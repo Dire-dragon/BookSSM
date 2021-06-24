@@ -71,6 +71,22 @@
   <sql id="Base_Column_List">
     id, name, author, price, sales, stock, img_path
   </sql>
+  <select id="selectByBookSelective" resultType="com.maktub.bean.Book">
+    select
+    <include refid="Base_Column_List"/>
+    from t_book
+    <trim prefix="where">
+        <if test="id != null">
+            id = #{id}
+        </if>
+        <if test="name != null">
+            name like concat('%',#{name},'%')
+        </if>
+        <if test="author != null">
+            author like concat('%',#{author},'%')
+        </if>
+    </trim>
+  </select>
   <select id="selectByExample" parameterType="com.maktub.bean.BookExample" resultMap="BaseResultMap">
     select
     <if test="distinct">

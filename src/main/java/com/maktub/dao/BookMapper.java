@@ -2,8 +2,9 @@ package com.maktub.dao;
 
 import com.maktub.bean.Book;
 import com.maktub.bean.BookExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface BookMapper {
     long countByExample(BookExample example);
@@ -15,6 +16,8 @@ public interface BookMapper {
     int insert(Book record);
 
     int insertSelective(Book record);
+
+    List<Book> selectByBookSelective(Book book);
 
     List<Book> selectByExample(BookExample example);
 

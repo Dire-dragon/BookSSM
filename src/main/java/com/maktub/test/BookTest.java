@@ -35,7 +35,15 @@ public class BookTest {
 
     @Test
     public void test1(){
-        System.out.println(bookController.searchBook(1));
+        System.out.println(bookController.findBookById(1));
+        // bookMapper.insert(book);
+    }
+
+    @Test
+    public void test2(){
+        Book book = new Book();
+        book.setName("1");
+        System.out.println(bookController.findBookBySelective(1,book));
         // bookMapper.insert(book);
     }
 

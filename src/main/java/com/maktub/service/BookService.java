@@ -41,4 +41,8 @@ public class BookService {
     public void deleteBook(Integer id) {
         bookMapper.deleteByPrimaryKey(id);
     }
+
+    public List<Book> findBookBySelective(Book book) {
+        return bookMapper.selectByBookSelective(book);
+    }
 }
