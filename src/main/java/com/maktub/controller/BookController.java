@@ -32,7 +32,6 @@ public class BookController {
     @RequestMapping(value = "book",method = RequestMethod.PUT)
     @ResponseBody
     public Msg updateBook(Book book){
-        System.out.println(book);
         bookService.updateBook(book);
         return Msg.success();
     }
@@ -51,6 +50,7 @@ public class BookController {
     }
 
 
+    //@PathVariable:获取占位符的内容
     @RequestMapping(value = "book/{id}",method = RequestMethod.GET)
     @ResponseBody
     public Msg findBookById(@PathVariable("id")Integer id){

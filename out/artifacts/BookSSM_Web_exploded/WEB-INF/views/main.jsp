@@ -13,23 +13,23 @@
 <body>
 
 <%--添加的form表单--%>
-<div style="display: none" id="addForm" class="layui-form">
+<form style="display: none" id="addForm" class="layui-form">
     <div class="layui-form-item">
         <label class="layui-form-label">书名</label>
         <div class="layui-input-block">
-            <input type="text" id="add_bookName" name="bookName" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="add_bookName" name="name" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">作者</label>
         <div class="layui-input-block">
-            <input type="text" id="add_author" name="author" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="add_author" lay-verify="author" name="author" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">价格</label>
         <div class="layui-input-block">
-            <input type="text" id="add_price" name="price" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="add_price"  name="price" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -41,22 +41,29 @@
     <div class="layui-form-item">
         <label class="layui-form-label">库存</label>
         <div class="layui-input-block">
-            <input type="text" id="add_stock" name="stock" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="add_stock" lay-verify="stock" name="stock" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">封面路径</label>
         <div class="layui-input-block">
-            <input type="text" id="add_img" name="img" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="add_img" name="imgPath" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
-</div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <%--使用layui.from中的提交必须添加lay-submit--%>
+            <button lay-submit="" class="layui-btn layui-btn-normal" lay-filter="add">添加</button>
+            <button id="add_cancel_btn" class="layui-btn layui-btn-primary">取消</button>
+        </div>
+    </div>
+</form>
 <%--编辑的form表单--%>
-<div style="display: none" id="EditForm" class="layui-form">
+<form style="display: none" id="EditForm" class="layui-form">
     <div class="layui-form-item">
         <label class="layui-form-label">书名</label>
         <div class="layui-input-block">
-            <input type="text" id="edt_bookName" name="bookName" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="edt_bookName" name="name" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -86,10 +93,16 @@
     <div class="layui-form-item">
         <label class="layui-form-label">封面路径</label>
         <div class="layui-input-block">
-            <input type="text" id="edt_img" name="img" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" id="edt_img" name="imgPath" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
-</div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button lay-submit="" class="layui-btn layui-btn-normal" lay-filter="edit">修改</button>
+            <button id="edit_cancel_btn" class="layui-btn layui-btn-primary">取消</button>
+        </div>
+    </div>
+</form>
 
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
@@ -151,7 +164,9 @@
 <script type="text/javascript">
 
     var size = 0;
-    var defaultURL = '${APP_PATH}/books?pn=';
+    var DefaultURL = '${APP_PATH}/book';//'${APP_PATH}/books?pn=';
+    var MaxPn = 2147483;
+    var id,currPn = 1,currURL = DefaultURL + "s?pn=";
 
     layui.use(['element', 'layer', 'util'], function () {
         var element = layui.element
@@ -179,7 +194,7 @@
 
     });
 
-
+    //添加表单初始化
     function addFormInit(){
         $("#add_bookName").val("");
         $("#add_author").val("");
@@ -189,18 +204,79 @@
         $("#add_img").val("");
     }
 
+    //表单元素的使用
+    layui.use("form",function () {
+        var form = layui.form;
+
+        form.on('submit(add)',function (data) {
+                $.ajax({
+                    url: DefaultURL,
+                    type: "POST",
+                    data: data.field,
+                    success: function () {
+                        layer.closeAll();//成功关闭弹出框
+                        layer.open({
+                            type:0,
+                            content:"添加成功！"
+                        })
+                        currPn = MaxPn;
+                        toPage(DefaultURL);//跳转到最后一页,2147483是2的32次方减1，为Java中整形的最大值
+                    },
+                    error: function () {
+                        layer.msg("添加失败");
+                    }
+                });
+            return false;
+        })
+
+        form.on('submit(edit)',function (data) {
+            console.log(data);
+                $.ajax({
+                    url: DefaultURL + "?id=" + id + "&_method=PUT",
+                    type: "POST",
+                    data: data.field,
+                    success:function () {
+                        layer.closeAll();
+                        layer.open({
+                            type:0,
+                            content:"修改成功！"
+                        })
+                        toPage();
+                    },
+                    error:function (result) {
+                        console.log(result);
+                    }
+                });
+            return false;
+        })
+
+        form.verify({
+            author:[
+                /^[\u4E00-\u9FA5]{2,10}$/,
+                "请输入2-10字作者名"
+            ],
+            stock:[
+                /^[0-9]{1,10}$/,
+                "请输入正确的库存数"
+            ],
+        })
+    })
+
+    //取消按钮的点击事件
+    $("#add_cancel_btn,#edit_cancel_btn").click(function () {
+        layer.closeAll();
+        return false;
+    })
 
     //查询toPage和普通toPage的区别：
     //#url不同
     //#
-
-    function toPage(pn,url) {
+    function toPage() {
         layui.use('table', function () {
             var table = layui.table;
-
             table.render({
                 elem: '#demo'                       //id选择数据表格
-                , url: url + pn// + pn //数据接口
+                , url: currURL + currPn// + currPn  //数据接口
                 , response: {                       //配置返回的信息
                     statusCode: 200                 //成功的状态安
                 }
@@ -217,7 +293,6 @@
                     if(size == 0){                      //判断size大小是否为初值
                         size = res.extend.books.size;   //从服务器的信息中获取分页条数给size赋值
                     }
-                    console.log(res.extend.books)
                     return {                            //返回处理后的数据
                         "code": res.code,
                         "msg": res.msg,
@@ -227,7 +302,7 @@
                     };
                 }
                 , done: function (res, curr, count) {       //渲染后的回调函数
-                    page(pn, count, url);                        //分页条的渲染
+                    page(count);                        //分页条的渲染
                 }
             })
 
@@ -239,42 +314,14 @@
                         addFormInit();
                         layer.open({
                             type: 1,                //类型，1为页面层
-                            btn: ['添加','取消'],
                             title: "添加书图",       //弹出层标题
                             content: $("#addForm")  //弹出层内容，传入一个DOM元素
-                            ,yes:function (index) {
-                                $.ajax({
-                                    url: '${APP_PATH}/book',
-                                    type: "POST",
-                                    data: {
-                                        "name": $("#add_bookName").val(),
-                                        "author": $("#add_author").val(),
-                                        "price": $("#add_price").val(),
-                                        "sales": $("#add_sales").val(),
-                                        "stock": $("#add_stock").val(),
-                                        "imgPath": $("#add_img").val()
-                                    },
-                                    success: function () {
-                                        layer.close(index);//成功关闭弹出框
-                                        layer.open({
-                                            type:0,
-                                            content:"添加成功！"
-                                        })
-                                        toPage(2147483,defaultURL);//跳转到最后一页,2147483是2的32次方减1，为Java中整形的最大值
-                                    },
-                                    error: function () {
-                                        layer.msg("添加失败");
-                                    }
-                                })
-                            },
-                            btn2:function (index) {
-                                layer.close(index);
-                            }
-
                         });
                         break;
                     case "find":
-                        toPage(1,'${APP_PATH}/book?name='+$("#find_input").val()+"&pn=");
+                        currPn = 1;
+                        currURL= DefaultURL + '?name='+$("#find_input").val()+"&pn=";
+                        toPage();
                         break;
                 }
             });
@@ -283,14 +330,15 @@
             table.on("tool(test)", function (obj) {
                 switch (obj.event) {
                     case 'edit':                        //编辑按钮事件
+                        id = obj.data.id;
                         $.ajax({
-                            url: "${APP_PATH}/book/" + obj.data.id,//obj.data.id获取该行的id属性
+                            url: DefaultURL+ "/" + id,//obj.data.id获取该行的id属性
                             type: "GET",
                             success: function (result) {
                                 var info = result.extend.book;
                                 layer.open({
                                     type:1,
-                                    btn:["修改","取消"],
+                                    // btn:["修改","取消"],
                                     title:"修改书图信息",
                                     content:$("#EditForm"),
                                     success:function () {
@@ -301,36 +349,36 @@
                                         $("#edt_stock").val(info.stock);
                                         $("#edt_img").val(info.imgPath);
                                     },
-                                    yes:function (index) {
-                                        $.ajax({
-                                            url: "${APP_PATH}/book",
-                                            type: "POST",
-                                            data: {
-                                                "_method":"PUT",
-                                                "id": obj.data.id,
-                                                "name": $("#edt_bookName").val(),
-                                                "author": $("#edt_author").val(),
-                                                "price": $("#edt_price").val(),
-                                                "sales": $("#edt_sales").val(),
-                                                "stock": $("#edt_stock").val(),
-                                                "imgPath": $("#edt_img").val()
-                                            },
-                                            success:function () {
-                                                layer.close(index);
-                                                layer.open({
-                                                    type:0,
-                                                    content:"修改成功！"
-                                                })
-                                                toPage(pn,url);
-                                            },
-                                            error:function (result) {
-                                                console.log(result);
-                                            }
-                                        })
-                                    },
-                                    btn2:function (index) {
-                                        layer.close(index);
-                                    }
+                                    <%--yes:function (index) {--%>
+                                    <%--    $.ajax({--%>
+                                    <%--        url: "${APP_PATH}/book",--%>
+                                    <%--        type: "POST",--%>
+                                    <%--        data: {--%>
+                                    <%--            "_method":"PUT",--%>
+                                    <%--            "id": obj.data.id,--%>
+                                    <%--            "name": $("#edt_bookName").val(),--%>
+                                    <%--            "author": $("#edt_author").val(),--%>
+                                    <%--            "price": $("#edt_price").val(),--%>
+                                    <%--            "sales": $("#edt_sales").val(),--%>
+                                    <%--            "stock": $("#edt_stock").val(),--%>
+                                    <%--            "imgPath": $("#edt_img").val()--%>
+                                    <%--        },--%>
+                                    <%--        success:function () {--%>
+                                    <%--            layer.close(index);--%>
+                                    <%--            layer.open({--%>
+                                    <%--                type:0,--%>
+                                    <%--                content:"修改成功！"--%>
+                                    <%--            })--%>
+                                    <%--            toPage(pn,url);--%>
+                                    <%--        },--%>
+                                    <%--        error:function (result) {--%>
+                                    <%--            console.log(result);--%>
+                                    <%--        }--%>
+                                    <%--    })--%>
+                                    <%--},--%>
+                                    <%--btn2:function (index) {--%>
+                                    <%--    layer.close(index);--%>
+                                    <%--}--%>
                                 })
                             }
                         })
@@ -344,14 +392,14 @@
                             content: "确定删除吗？",
                             yes:function (index) {
                                 $.ajax({
-                                    url:"${APP_PATH}/book",
-                                    type:"POST",
+                                    url: DefaultURL,
+                                    type: "POST",
                                     data:{
                                         _method: "DELETE",
                                         "id":obj.data.id
                                     },
                                     success:function () {
-                                        toPage(pn,url);
+                                        toPage();
                                         layer.close(index);
                                     }
                                 })
@@ -366,10 +414,10 @@
         })
     }
 
-    toPage(1,defaultURL);      //初始化表格
+    toPage();      //初始化表格
 
     //分页条生成函数
-    function page(pn, count, url) {
+    function page(count) {
 
         layui.use('laypage', function () {
 
@@ -377,14 +425,15 @@
 
             laypage.render({                                      //渲染页脚
                 elem: 'pageInfo',                                 //指定html中id为pageInfo的标签进行渲染
-                curr: pn,                                         //当前页码
+                curr: currPn,                                         //当前页码
                 groups: 5,                                        //连续显示页码个数
                 count: count,                                     //总页码数
                 limit: size,                                      //每页数据个数
                 layout: ['prev', 'page', 'next', 'skip', 'count'],//自定义分页样式，prev:上一页，page：连续页码，next：下一页，skip：输入页码跳转，count：显示总页码数
                 jump: function (obj, first) {                     //页码点击事件
                     if(!first){                                   //判断是否是第一次调用，防止重复调用。
-                        toPage(obj.curr,url);                         //跳转到点击页面
+                        currPn=obj.curr;
+                        toPage();                        //跳转到点击页面
                     }
                 }
             })
