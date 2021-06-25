@@ -122,7 +122,7 @@
                     账户信息
                 </a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">登陆</a></dd>
+                    <dd><a href="${APP_PATH}/login">登陆</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
