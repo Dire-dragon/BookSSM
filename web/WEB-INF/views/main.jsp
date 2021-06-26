@@ -122,7 +122,7 @@
                     账户信息
                 </a>
                 <dl class="layui-nav-child">
-                    <dd><a href="${APP_PATH}/login">登陆</a></dd>
+                    <dd><a href="">登陆</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
@@ -163,52 +163,54 @@
 <script src="${APP_PATH}/static/js/jquery-1.12.4.js"></script>
 <script type="text/javascript">
 
-    var size = 0;
-    var DefaultURL = '${APP_PATH}/book';//'${APP_PATH}/books?pn=';
-    var MaxPn = 2147483;
-    var id,currPn = 1,currURL = DefaultURL + "s?pn=";
+    $(function () {
 
-    layui.use(['element', 'layer', 'util'], function () {
-        var element = layui.element
-            , layer = layui.layer
-            , util = layui.util
-            , $ = layui.$;
+        var size = 0;
+        var DefaultURL = '${APP_PATH}/book';//'${APP_PATH}/books?pn=';
+        var MaxPn = 2147483;
+        var id,currPn = 1,currURL = DefaultURL + "s?pn=";
 
-        //头部事件
-        util.event('lay-header-event', {
-            //左侧菜单事件
-            menuLeft: function (othis) {
-                layer.msg('展开左侧菜单的操作', {icon: 0});
-            }
-            , menuRight: function () {
-                layer.open({
-                    type: 1
-                    , content: '<div style="padding: 15px;">处理右侧面板的操作</div>'
-                    , area: ['260px', '100%']
-                    , offset: 'rt' //右上角
-                    , anim: 5
-                    , shadeClose: true
-                });
-            }
+        layui.use(['element', 'layer', 'util'], function () {
+            var element = layui.element
+                , layer = layui.layer
+                , util = layui.util
+                , $ = layui.$;
+
+            //头部事件
+            util.event('lay-header-event', {
+                //左侧菜单事件
+                menuLeft: function (othis) {
+                    layer.msg('展开左侧菜单的操作', {icon: 0});
+                }
+                , menuRight: function () {
+                    layer.open({
+                        type: 1
+                        , content: '<div style="padding: 15px;">处理右侧面板的操作</div>'
+                        , area: ['260px', '100%']
+                        , offset: 'rt' //右上角
+                        , anim: 5
+                        , shadeClose: true
+                    });
+                }
+            });
+
         });
 
-    });
+        //添加表单初始化
+        function addFormInit(){
+            $("#add_bookName").val("");
+            $("#add_author").val("");
+            $("#add_price").val("");
+            $("#add_sales").val("");
+            $("#add_stock").val("");
+            $("#add_img").val("");
+        }
 
-    //添加表单初始化
-    function addFormInit(){
-        $("#add_bookName").val("");
-        $("#add_author").val("");
-        $("#add_price").val("");
-        $("#add_sales").val("");
-        $("#add_stock").val("");
-        $("#add_img").val("");
-    }
+        //表单元素的使用
+        layui.use("form",function () {
+            var form = layui.form;
 
-    //表单元素的使用
-    layui.use("form",function () {
-        var form = layui.form;
-
-        form.on('submit(add)',function (data) {
+            form.on('submit(add)',function (data) {
                 $.ajax({
                     url: DefaultURL,
                     type: "POST",
@@ -226,11 +228,11 @@
                         layer.msg("添加失败");
                     }
                 });
-            return false;
-        })
+                return false;
+            })
 
-        form.on('submit(edit)',function (data) {
-            console.log(data);
+            form.on('submit(edit)',function (data) {
+                console.log(data);
                 $.ajax({
                     url: DefaultURL + "?id=" + id + "&_method=PUT",
                     type: "POST",
@@ -247,198 +249,202 @@
                         console.log(result);
                     }
                 });
+                return false;
+            })
+
+            form.verify({
+                author:[
+                    /^[\u4E00-\u9FA5]{2,10}$/,
+                    "请输入2-10字作者名"
+                ],
+                stock:[
+                    /^[0-9]{1,10}$/,
+                    "请输入正确的库存数"
+                ],
+            })
+        })
+
+        //取消按钮的点击事件
+        $("#add_cancel_btn,#edit_cancel_btn").click(function () {
+            layer.closeAll();
             return false;
         })
 
-        form.verify({
-            author:[
-                /^[\u4E00-\u9FA5]{2,10}$/,
-                "请输入2-10字作者名"
-            ],
-            stock:[
-                /^[0-9]{1,10}$/,
-                "请输入正确的库存数"
-            ],
-        })
+        //查询toPage和普通toPage的区别：
+        //#url不同
+        //#
+        function toPage() {
+            layui.use('table', function () {
+                var table = layui.table;
+                table.render({
+                    elem: '#demo'                       //id选择数据表格
+                    , url: currURL + currPn// + currPn  //数据接口
+                    , response: {                       //配置返回的信息
+                        statusCode: 200                 //成功的状态安
+                    }
+                    , toolbar: '#toolbarDemo'           //id选择自定义头部工具栏
+                    , cols: [[                          //表头
+                        {field: 'id', title: 'ID', fixed: 'left',align: 'center'}
+                        , {field: 'name', title: '书名'}
+                        , {field: 'author', title: '作者'}
+                        , {field: 'price', title: '价格'}
+                        , {field: 'stock', title: '库存'}
+                        , {field: 'imgPath', title: '封面图路径'}
+                        , {field: 'operate', title: '操作', fixed: 'right', align: 'center', toolbar: '#barDemo'}]]
+                    , parseData: function (res) {           //处理数据的函数调用
+                        if(size == 0){                      //判断size大小是否为初值
+                            size = res.extend.books.size;   //从服务器的信息中获取分页条数给size赋值
+                        }
+                        return {                            //返回处理后的数据
+                            "code": res.code,
+                            "msg": res.msg,
+                            "data": res.extend.books.list,
+                            "count": res.extend.books.total,
+                            "info": res.extend.books
+                        };
+                    }
+                    , done: function (res, curr, count) {       //渲染后的回调函数
+                        page(count);                        //分页条的渲染
+                    }
+                })
+
+
+                //表格头工具栏触发事件，(id选择，省略#)
+                table.on('toolbar(test)', function (obj) {
+                    switch (obj.event) {
+                        case 'add':                     //匹配layevent中的参数
+                            addFormInit();
+                            layer.open({
+                                type: 1,                //类型，1为页面层
+                                title: "添加书图",       //弹出层标题
+                                content: $("#addForm")  //弹出层内容，传入一个DOM元素
+                            });
+                            break;
+                        case "find":
+                            currPn = 1;
+                            currURL= DefaultURL + '?name='+$("#find_input").val()+"&pn=";
+                            toPage();
+                            break;
+                    }
+                });
+
+                //表格列工具栏触发事件
+                table.on("tool(test)", function (obj) {
+                    switch (obj.event) {
+                        case 'edit':                        //编辑按钮事件
+                            id = obj.data.id;
+                            $.ajax({
+                                url: DefaultURL+ "/" + id,//obj.data.id获取该行的id属性
+                                type: "GET",
+                                success: function (result) {
+                                    var info = result.extend.book;
+                                    layer.open({
+                                        type:1,
+                                        // btn:["修改","取消"],
+                                        title:"修改书图信息",
+                                        content:$("#EditForm"),
+                                        success:function () {
+                                            $("#edt_bookName").val(info.name);
+                                            $("#edt_author").val(info.author);
+                                            $("#edt_price").val(info.price);
+                                            $("#edt_sales").val(info.sales);
+                                            $("#edt_stock").val(info.stock);
+                                            $("#edt_img").val(info.imgPath);
+                                        },
+                                        <%--yes:function (index) {--%>
+                                        <%--    $.ajax({--%>
+                                        <%--        url: "${APP_PATH}/book",--%>
+                                        <%--        type: "POST",--%>
+                                        <%--        data: {--%>
+                                        <%--            "_method":"PUT",--%>
+                                        <%--            "id": obj.data.id,--%>
+                                        <%--            "name": $("#edt_bookName").val(),--%>
+                                        <%--            "author": $("#edt_author").val(),--%>
+                                        <%--            "price": $("#edt_price").val(),--%>
+                                        <%--            "sales": $("#edt_sales").val(),--%>
+                                        <%--            "stock": $("#edt_stock").val(),--%>
+                                        <%--            "imgPath": $("#edt_img").val()--%>
+                                        <%--        },--%>
+                                        <%--        success:function () {--%>
+                                        <%--            layer.close(index);--%>
+                                        <%--            layer.open({--%>
+                                        <%--                type:0,--%>
+                                        <%--                content:"修改成功！"--%>
+                                        <%--            })--%>
+                                        <%--            toPage(pn,url);--%>
+                                        <%--        },--%>
+                                        <%--        error:function (result) {--%>
+                                        <%--            console.log(result);--%>
+                                        <%--        }--%>
+                                        <%--    })--%>
+                                        <%--},--%>
+                                        <%--btn2:function (index) {--%>
+                                        <%--    layer.close(index);--%>
+                                        <%--}--%>
+                                    })
+                                }
+                            })
+                            break;
+                        //删除按钮事件
+                        case 'del':
+                            layer.open({
+                                type: 0,
+                                btn: ["确定","取消"],
+                                title: "删除",
+                                content: "确定删除吗？",
+                                yes:function (index) {
+                                    $.ajax({
+                                        url: DefaultURL,
+                                        type: "POST",
+                                        data:{
+                                            _method: "DELETE",
+                                            "id":obj.data.id
+                                        },
+                                        success:function () {
+                                            toPage();
+                                            layer.close(index);
+                                        }
+                                    })
+                                },
+                                btn2:function (index) {
+                                    layer.close(index);
+                                }
+                            })
+                            break;
+                    }
+                })
+            })
+        }
+
+        toPage();      //初始化表格
+
+        //分页条生成函数
+        function page(count) {
+
+            layui.use('laypage', function () {
+
+                var laypage = layui.laypage;
+
+                laypage.render({                                      //渲染页脚
+                    elem: 'pageInfo',                                 //指定html中id为pageInfo的标签进行渲染
+                    curr: currPn,                                         //当前页码
+                    groups: 5,                                        //连续显示页码个数
+                    count: count,                                     //总页码数
+                    limit: size,                                      //每页数据个数
+                    layout: ['prev', 'page', 'next', 'skip', 'count'],//自定义分页样式，prev:上一页，page：连续页码，next：下一页，skip：输入页码跳转，count：显示总页码数
+                    jump: function (obj, first) {                     //页码点击事件
+                        if(!first){                                   //判断是否是第一次调用，防止重复调用。
+                            currPn=obj.curr;
+                            toPage();                        //跳转到点击页面
+                        }
+                    }
+                })
+            })
+        }
+
     })
 
-    //取消按钮的点击事件
-    $("#add_cancel_btn,#edit_cancel_btn").click(function () {
-        layer.closeAll();
-        return false;
-    })
 
-    //查询toPage和普通toPage的区别：
-    //#url不同
-    //#
-    function toPage() {
-        layui.use('table', function () {
-            var table = layui.table;
-            table.render({
-                elem: '#demo'                       //id选择数据表格
-                , url: currURL + currPn// + currPn  //数据接口
-                , response: {                       //配置返回的信息
-                    statusCode: 200                 //成功的状态安
-                }
-                , toolbar: '#toolbarDemo'           //id选择自定义头部工具栏
-                , cols: [[                          //表头
-                    {field: 'id', title: 'ID', fixed: 'left',align: 'center'}
-                    , {field: 'name', title: '书名'}
-                    , {field: 'author', title: '作者'}
-                    , {field: 'price', title: '价格'}
-                    , {field: 'stock', title: '库存'}
-                    , {field: 'imgPath', title: '封面图路径'}
-                    , {field: 'operate', title: '操作', fixed: 'right', align: 'center', toolbar: '#barDemo'}]]
-                , parseData: function (res) {           //处理数据的函数调用
-                    if(size == 0){                      //判断size大小是否为初值
-                        size = res.extend.books.size;   //从服务器的信息中获取分页条数给size赋值
-                    }
-                    return {                            //返回处理后的数据
-                        "code": res.code,
-                        "msg": res.msg,
-                        "data": res.extend.books.list,
-                        "count": res.extend.books.total,
-                        "info": res.extend.books
-                    };
-                }
-                , done: function (res, curr, count) {       //渲染后的回调函数
-                    page(count);                        //分页条的渲染
-                }
-            })
-
-
-            //表格头工具栏触发事件，(id选择，省略#)
-            table.on('toolbar(test)', function (obj) {
-                switch (obj.event) {
-                    case 'add':                     //匹配layevent中的参数
-                        addFormInit();
-                        layer.open({
-                            type: 1,                //类型，1为页面层
-                            title: "添加书图",       //弹出层标题
-                            content: $("#addForm")  //弹出层内容，传入一个DOM元素
-                        });
-                        break;
-                    case "find":
-                        currPn = 1;
-                        currURL= DefaultURL + '?name='+$("#find_input").val()+"&pn=";
-                        toPage();
-                        break;
-                }
-            });
-
-            //表格列工具栏触发事件
-            table.on("tool(test)", function (obj) {
-                switch (obj.event) {
-                    case 'edit':                        //编辑按钮事件
-                        id = obj.data.id;
-                        $.ajax({
-                            url: DefaultURL+ "/" + id,//obj.data.id获取该行的id属性
-                            type: "GET",
-                            success: function (result) {
-                                var info = result.extend.book;
-                                layer.open({
-                                    type:1,
-                                    // btn:["修改","取消"],
-                                    title:"修改书图信息",
-                                    content:$("#EditForm"),
-                                    success:function () {
-                                        $("#edt_bookName").val(info.name);
-                                        $("#edt_author").val(info.author);
-                                        $("#edt_price").val(info.price);
-                                        $("#edt_sales").val(info.sales);
-                                        $("#edt_stock").val(info.stock);
-                                        $("#edt_img").val(info.imgPath);
-                                    },
-                                    <%--yes:function (index) {--%>
-                                    <%--    $.ajax({--%>
-                                    <%--        url: "${APP_PATH}/book",--%>
-                                    <%--        type: "POST",--%>
-                                    <%--        data: {--%>
-                                    <%--            "_method":"PUT",--%>
-                                    <%--            "id": obj.data.id,--%>
-                                    <%--            "name": $("#edt_bookName").val(),--%>
-                                    <%--            "author": $("#edt_author").val(),--%>
-                                    <%--            "price": $("#edt_price").val(),--%>
-                                    <%--            "sales": $("#edt_sales").val(),--%>
-                                    <%--            "stock": $("#edt_stock").val(),--%>
-                                    <%--            "imgPath": $("#edt_img").val()--%>
-                                    <%--        },--%>
-                                    <%--        success:function () {--%>
-                                    <%--            layer.close(index);--%>
-                                    <%--            layer.open({--%>
-                                    <%--                type:0,--%>
-                                    <%--                content:"修改成功！"--%>
-                                    <%--            })--%>
-                                    <%--            toPage(pn,url);--%>
-                                    <%--        },--%>
-                                    <%--        error:function (result) {--%>
-                                    <%--            console.log(result);--%>
-                                    <%--        }--%>
-                                    <%--    })--%>
-                                    <%--},--%>
-                                    <%--btn2:function (index) {--%>
-                                    <%--    layer.close(index);--%>
-                                    <%--}--%>
-                                })
-                            }
-                        })
-                        break;
-                    //删除按钮事件
-                    case 'del':
-                        layer.open({
-                            type: 0,
-                            btn: ["确定","取消"],
-                            title: "删除",
-                            content: "确定删除吗？",
-                            yes:function (index) {
-                                $.ajax({
-                                    url: DefaultURL,
-                                    type: "POST",
-                                    data:{
-                                        _method: "DELETE",
-                                        "id":obj.data.id
-                                    },
-                                    success:function () {
-                                        toPage();
-                                        layer.close(index);
-                                    }
-                                })
-                            },
-                            btn2:function (index) {
-                                layer.close(index);
-                            }
-                        })
-                        break;
-                }
-            })
-        })
-    }
-
-    toPage();      //初始化表格
-
-    //分页条生成函数
-    function page(count) {
-
-        layui.use('laypage', function () {
-
-            var laypage = layui.laypage;
-
-            laypage.render({                                      //渲染页脚
-                elem: 'pageInfo',                                 //指定html中id为pageInfo的标签进行渲染
-                curr: currPn,                                         //当前页码
-                groups: 5,                                        //连续显示页码个数
-                count: count,                                     //总页码数
-                limit: size,                                      //每页数据个数
-                layout: ['prev', 'page', 'next', 'skip', 'count'],//自定义分页样式，prev:上一页，page：连续页码，next：下一页，skip：输入页码跳转，count：显示总页码数
-                jump: function (obj, first) {                     //页码点击事件
-                    if(!first){                                   //判断是否是第一次调用，防止重复调用。
-                        currPn=obj.curr;
-                        toPage();                        //跳转到点击页面
-                    }
-                }
-            })
-        })
-    }
 
 </script>
 <script type="text/html" id="barDemo">

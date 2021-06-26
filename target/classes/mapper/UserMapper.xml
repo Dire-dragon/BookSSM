@@ -68,20 +68,6 @@
   <sql id="Base_Column_List">
     id, username, password, email
   </sql>
-  <select id="selectByExample" parameterType="com.maktub.bean.UserExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from t_user
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -91,12 +77,6 @@
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_user
     where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.maktub.bean.UserExample">
-    delete from t_user
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
   </delete>
   <insert id="insert" parameterType="com.maktub.bean.User">
     insert into t_user (id, username, password, 
@@ -135,42 +115,21 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.maktub.bean.UserExample" resultType="java.lang.Long">
-    select count(*) from t_user
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
+
+  <!--通过部分字段查询User-->
+  <select id="selectBySelective" resultType="com.maktub.bean.User">
+    select
+    <include refid="Base_Column_List"/>
+    from t_user
+    <trim prefix="where" prefixOverrides="and">
+      <if test="username != null and username !=''">
+        username=#{username}
+      </if>
+      <if test="password != null  and password != ''">
+        and password=#{password}
+      </if>
+    </trim>
   </select>
-  <update id="updateByExampleSelective" parameterType="map">
-    update t_user
-    <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=INTEGER},
-      </if>
-      <if test="record.username != null">
-        username = #{record.username,jdbcType=VARCHAR},
-      </if>
-      <if test="record.password != null">
-        password = #{record.password,jdbcType=VARCHAR},
-      </if>
-      <if test="record.email != null">
-        email = #{record.email,jdbcType=VARCHAR},
-      </if>
-    </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update t_user
-    set id = #{record.id,jdbcType=INTEGER},
-      username = #{record.username,jdbcType=VARCHAR},
-      password = #{record.password,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.maktub.bean.User">
     update t_user
     <set>

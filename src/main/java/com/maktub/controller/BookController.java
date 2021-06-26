@@ -21,14 +21,9 @@ public class BookController {
     @Autowired
     BookService bookService;
 
-    @RequestMapping("login")
-    public String login(){
-        return "user/login";
-    }
-
-    @RequestMapping("regist")
-    public String regist(){
-        return "user/regist";
+    @RequestMapping("main")
+    public String deleteBook(){
+        return "main";
     }
 
     @RequestMapping(value = "book",method = RequestMethod.DELETE)

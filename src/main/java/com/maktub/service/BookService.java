@@ -18,11 +18,11 @@ public class BookService {
     BookMapper bookMapper;
 
     public List<Book> getAll() {
-        return bookMapper.selectByExample(null);
+        return bookMapper.selectAll();
     }
 
     public long count() {
-        return bookMapper.countByExample(null);
+        return bookMapper.selectCount();
     }
 
     public void addBook(Book book) {

@@ -1,14 +1,8 @@
 package com.maktub.dao;
 
 import com.maktub.bean.User;
-import com.maktub.bean.UserExample;
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 public interface UserMapper {
-    long countByExample(UserExample example);
-
-    int deleteByExample(UserExample example);
 
     int deleteByPrimaryKey(Integer id);
 
@@ -16,15 +10,13 @@ public interface UserMapper {
 
     int insertSelective(User record);
 
-    List<User> selectByExample(UserExample example);
-
     User selectByPrimaryKey(Integer id);
 
-    int updateByExampleSelective(@Param("record") User record, @Param("example") UserExample example);
-
-    int updateByExample(@Param("record") User record, @Param("example") UserExample example);
+    User selectBySelective(User user);
 
     int updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
+
+
 }
