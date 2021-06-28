@@ -75,4 +75,9 @@ public class UserController {
     public String regist(){
         return "user/regist";
     }
+
+    @RequestMapping("logout")
+    public String logout(){
+        return "user/login";
+    }
 }

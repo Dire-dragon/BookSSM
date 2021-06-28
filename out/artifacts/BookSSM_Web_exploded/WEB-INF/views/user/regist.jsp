@@ -119,7 +119,6 @@
                     return false;
                 }
 
-
                 $.ajax({
                     url: "${APP_PATH}/regist",
                     type: "POST",
@@ -139,6 +138,7 @@
                     error: function (result) {
                         errorMsg();
                     }
+
                 })
 
                 return false;

@@ -119,10 +119,11 @@
         <ul class="layui-nav layui-layout-right">
             <li class="layui-nav-item layui-hide layui-show-md-inline-block">
                 <a href="javascript:;">
-                    账户信息
+                    ${param.username eq null ? "个人信息":param.username}
                 </a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">登陆</a></dd>
+                    <dd><a href="">个人中心</a></dd>
+                    <dd><a href="${APP_PATH}/logout">登出</a> </dd>
                 </dl>
             </li>
             <li class="layui-nav-item" lay-header-event="menuRight" lay-unselect>
