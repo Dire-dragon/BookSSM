@@ -52,6 +52,7 @@
 <script>
     $(function () {
 
+        //验证码点击刷新
         $("#img-captcha").click(function () {
             $(this).attr("src","${APP_PATH}/captcha?" + Math.random());
         })
@@ -84,6 +85,8 @@
                             layer.msg("验证码错误",{
                                 time:2000
                             })
+                            //刷新验证码
+                            $("#img-captcha").attr("src","${APP_PATH}/captcha?" + Math.random());
                         }else if(result.code == 200){
                             location="${APP_PATH}/main?username=" + data.field.username;
                         }

@@ -21,7 +21,8 @@
         <div class="m-login-warp">
             <form class="layui-form">
                 <div class="layui-form-item">
-                    <input id="username" type="text" name="username" required lay-reqText="用户名不能为空" lay-verify="required|username"
+                    <input id="username" type="text" name="username" required lay-reqText="用户名不能为空"
+                           lay-verify="required|username"
                            placeholder="用户名:2-10位中英文均可" autocomplete="off" class="layui-input">
                 </div>
                 <div class="layui-form-item">
@@ -59,11 +60,18 @@
 
     $(function () {
 
+        function errorMsg() {
+            layer.open({
+                title: "错误消息",
+                content: "当前网络错误，请稍后再试"
+            })
+        }
+
         //用户名判断是否存在
         $("#username").change(function () {
             var re = /^[\u4E00-\u9FA5a-zA-Z_0-9]{2,10}$/;
-            if(!re.test($("#username").val())){
-                layer.msg("用户名不合法！",{
+            if (!re.test($("#username").val())) {
+                layer.msg("用户名不合法！", {
                     time: 2000
                 });
                 return;
@@ -75,12 +83,12 @@
                 data: {"username": $("#username").val()},
                 success: function (result) {
                     if (result.code == 100) {
-                        layer.msg("用户名可用！",{
+                        layer.msg("用户名可用！", {
                             time: 2000
                         });
                     }
                     if (result.code == 200) {
-                        layer.msg("用户名已存在！",{
+                        layer.msg("用户名已存在！", {
                             time: 2000
                         });
                     }
@@ -95,7 +103,7 @@
 
             //自定义验证规则
             form.verify({
-                username: [/^[\u4E00-\u9FA5a-zA-Z_0-9]{2,10}$/, "用户名为2-10位中英文"],
+                username: [/^[\u4E00-\u9FA5a-zA-z0-9]{2,10}$/, "用户名为2-10位中英文"],
                 password: [/(.+){5,12}$/, '密码为5-12位字符'],
                 password_ensure: [/(.+){5,12}$/, '两次密码不一致'],
             });
@@ -103,9 +111,36 @@
 
             //监听提交
             form.on('submit(login)', function (data) {
-                layer.alert(JSON.stringify(data.field), {
-                    title: '最终的提交信息'
+
+                if($("#password").val() != $("#password_ensure").val()){
+                    layer.msg("两次密码不一致",{
+                        time: 3000
+                    });
+                    return false;
+                }
+
+                $.ajax({
+                    url: "${APP_PATH}/regist",
+                    type: "POST",
+                    data: data.field,
+                    success: function (result) {
+                        if (result.code == 200) {
+                            layer.open({
+                                title: "注册消息",
+                                content: "注册成功",
+                                yes: function () {
+                                    location = "${APP_PATH}";
+                                }
+                            });
+
+                        }
+                    },
+                    error: function (result) {
+                        errorMsg();
+                    }
+
                 })
+
                 return false;
             });
 

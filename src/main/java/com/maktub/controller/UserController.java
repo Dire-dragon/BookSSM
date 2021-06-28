@@ -7,6 +7,7 @@ import com.maktub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -23,6 +24,17 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @RequestMapping(value = "regist", method = RequestMethod.POST)
+    @ResponseBody
+    public Msg regist(@RequestParam("password_ensure") String pwd,User user){
+        System.out.println(user);
+        if(!user.getPassword().equals(pwd) || (userService.isExist(user) != -1)){
+            return Msg.fail();
+        }
+        userService.regist(user);
+        return Msg.success();
+    }
+
     /**
      * 判断指定的用户是否存在
      * @param user
@@ -33,7 +45,6 @@ public class UserController {
     public Msg login(@RequestParam("verity") String verity, User user, HttpServletRequest request){
         HttpSession session = request.getSession();
         String key = (String) session.getAttribute(Constants.KAPTCHA_SESSION_KEY);
-        System.out.println(verity);
         if(!verity.equalsIgnoreCase(key)){
             return Msg.vertifyError();
         }

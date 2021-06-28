@@ -29,4 +29,7 @@ public class UserService {
         return user.getId();
     }
 
+    public int regist(User user) {
+        return userMapper.insert(user);
+    }
 }
